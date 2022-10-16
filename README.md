@@ -1,18 +1,3 @@
-This is the PyTorch implementation of ["Property-Aware Relation Networks (PAR) for Few-Shot Molecular Property Prediction (spotlight)"](https://papers.nips.cc/paper/2021/hash/91bc333f6967019ac47b49ca0f2fa757-Abstract.html) published in NeurIPS 2021 as a spotlight paper. 
-The PaddlePaddle implementation is a part of PaddleHelix, which can be reached [here](https://github.com/PaddlePaddle/PaddleHelix/tree/dev/apps/fewshot_molecular_property).
-
-<p align="center"><img src="PAR-thumbnail.png" alt="logo" width="400px" />
-
-Please cite our paper if you find it helpful. Thanks. 
-```
-@InProceedings{wang2021property,
-  title={Property-Aware Relation Networks for Few-Shot Molecular Property Prediction},
-  author={Wang, Yaqing and Abuduweili, Abulikemu and Yao, Quanming and Dou, Dejing},
-  booktitle = {Advances in Neural Information Processing Systems},
-  year={2021},
-}
-```
-
 ## Environment  
 We used the following Python packages for core development. We tested on `Python 3.7`.
 ```
