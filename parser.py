@@ -9,7 +9,7 @@ from chem_lib.datasets import obatin_train_test_tasks
 from chem_lib.utils import init_trial_path
 
 def get_parser(root_dir='.'):
-    parser = argparse.ArgumentParser(description='Property-Aware Relation Networks for Few-Shot Molecular Property Prediction')
+    parser = argparse.ArgumentParser(description='Multi-View Relation Fusion-Alternate for Few-Shot Molecular Property Prediction')
     # dataset
     parser.add_argument('-r', '--root-dir', type=str, default=root_dir, help='root-dir')
     parser.add_argument('-d', '--dataset', type=str, default='tox21', help='data set name')  # ['tox21','sider','muv','toxcast']
@@ -21,16 +21,18 @@ def get_parser(root_dir='.'):
     parser.add_argument("--run_task", type=int, default=-1, help="run on task")
 
     # few shot
+    parser.add_argument('--support_num', type=int, default = 20)
     parser.add_argument("--n-shot-train", type=int, default=10, help="train: number of shot for each class")#choices=[1,10]
-    parser.add_argument("--n-shot-test", type=int, default=10, help="test: number of shot for each class")#choices=[1,10]
+    parser.add_argument("--n-shot-test", type=int, default=10,help="test: number of shot for each class")#choices=[1,10]
     parser.add_argument("--n-query", type=int, default=16, help="number of query in few shot learning")
+    parser.add_argument("--num_ways", type=int, default=2)
 
     # training
-    parser.add_argument("--meta-lr", type=float, default=0.001, # 0.003, 0.001, 0.0006
+    parser.add_argument("--meta-lr", type=float, default=0.0006, # 0.003, 0.001, 0.0006
                         help="Training: Meta learning rate")  
     parser.add_argument("--weight_decay", type=float, default=5e-5,
                         help="Training: Meta learning weight_decay")  
-    parser.add_argument("--inner-lr", type=float, default=0.1, help="Training: Inner loop learning rate")  # 0.01
+    parser.add_argument("--inner-lr", type=float, default=0.06, help="Training: Inner loop learning rate")  # 0.01
     parser.add_argument('--epochs', type=int, default=5000,
                         help='number of epochs to train (default: 5000)')  # 5000
     parser.add_argument('--update_step', type=int, default=1)  # 5
@@ -40,7 +42,7 @@ def get_parser(root_dir='.'):
     parser.add_argument("--meta_warm_step2", type=int, default=10000, help="meta warp up step 2 for encode")
     parser.add_argument("--second_order", type=int, default=1, help="second order or not")  # 9
     parser.add_argument("--batch_task", type=int, default=9, help="Training: Meta batch size")  # 9
-    parser.add_argument("--adapt_weight", type=int, default=5, help="adaptable weights")  # 9
+    parser.add_argument("--adapt_weight", type=int, default=1, help="adaptable weights")  # 9
     parser.add_argument("--eval_support", type=int, default=0, help="Training: eval s")
     # model
     ## mol-encoder
@@ -68,26 +70,29 @@ def get_parser(root_dir='.'):
     parser.add_argument("--map-dropout", type=float, default=0.1, help="map dropout")
                    
     parser.add_argument('--ctx_head', type=int, default=2, help='context layer')
-    ## relation graph
-    parser.add_argument("--rel-hidden-dim", type=int, default=128, help="hidden dim for relation net")  # 32
-    parser.add_argument("--rel-layer", type=int, default=2, help="number of layers for relation net")
-    parser.add_argument("--rel-edge-layer", type=int, default=2, help="number of layers for relation edge update")  # 3
-    parser.add_argument("--rel-res", type=float, default=0, help="residual weight of mapper and relation")
+
+    ## relation graph 
     parser.add_argument("--batch_norm", type=int, default=0, help="batch_norm or not")
     parser.add_argument("--rel_adj", type=str, default='sim', choices=['dist', 'sim'], help="edge update adjacent")
     parser.add_argument("--rel_act", type=str, default='sigmoid', choices=['sigmoid', 'softmax', 'none'],
                         help="edge update adjacent")
-    parser.add_argument('--rel_node_concat', type=int, default=0, help='node concat or not')
-    parser.add_argument("--rel-dropout", type=float, default=0, help="rel dropout")
-    parser.add_argument("--rel-dropout2", type=float, default=0.2, help="rel dropout2")
+                        
+    ## dpgn relation 
+    parser.add_argument("--num_generations", type=int, default = 2, help="the num of iterations of the DPGN") # 6
+    parser.add_argument("--dpgn_dropout", type = float, default = 0.1)
+    parser.add_argument("--loss_indicator", type=list, default=[1,1,0])
+    parser.add_argument("--point_metric", type=str, default='l2')
+    parser.add_argument("--distribution_metric", type=str, default='l2')
+    parser.add_argument("--num_loss_generation", type=int, default = 3)
+    parser.add_argument("--generation_weight", type = float, default=0.5)
 
     ## loss term
     ### adjacency reg
     parser.add_argument('--reg_adj', type=float, default=1, help='reg adj loss weight')
 
     # other
-    parser.add_argument('--seed', type=int, default=5, help="Seed for splitting the dataset.")
-    parser.add_argument('--gpu_id', type=int, default=0, help="Choose the number of GPU.")
+    parser.add_argument('--seed', type=int, default=6, help="Seed for splitting the dataset.")
+    parser.add_argument('--gpu_id', type=int, default=6, help="Choose the number of GPU.")
     parser.add_argument("--result_path", type=str, default=os.path.join(root_dir,'results'), help="result path")
     parser.add_argument("--eval_steps", type=int, default=10)
     parser.add_argument("--save-steps", type=int, default=2000, help="Training: Number of iterations between checkpoints")

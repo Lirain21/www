@@ -1,4 +1,3 @@
-
 import os
 print('pid:', os.getpid())
 
@@ -7,11 +6,16 @@ from parser import get_args
 from chem_lib.models import ContextAwareRelationNet, Meta_Trainer
 from chem_lib.utils import count_model_params
 
+from rdkit import Chem   
+from rdkit import RDLogger    
+RDLogger.DisableLog('rdApp.*') 
+
 def main():
     root_dir = '.'
     args = get_args(root_dir)
 
     model = ContextAwareRelationNet(args)
+
     count_model_params(model)
     model = model.to(args.device)
     trainer = Meta_Trainer(args, model)
@@ -23,7 +27,7 @@ def main():
         print('----------------- Epoch:', epoch,' -----------------')
         trainer.train_step()
 
-        if epoch % args.eval_steps == 0 or epoch==1 or epoch==args.epochs:
+        if (epoch % args.eval_steps == 0 or epoch==1 or epoch==args.epochs) and epoch > 4500:
             print('Evaluation on epoch',epoch)
             best_avg_auc = trainer.test_step()
 
@@ -34,7 +38,7 @@ def main():
 
     print('Train done.')
     print('Best Avg AUC:',best_avg_auc)
-
+    
     trainer.conclude()
 
     if args.save_logs:
